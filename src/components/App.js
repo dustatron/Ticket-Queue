@@ -1,15 +1,15 @@
 import React from "react";
 import Header from "./Header";
-import TicketList from "./TicketList";
+import TicketControl from "./TicketControl";
 
 function App() {
-  const name = "Thato";
-  const name2 = "Haley";
   return (
-    <React.Fragment>
+    // <React.Fragment>
+    <div class="container">
       <Header />
-      <TicketList />
-    </React.Fragment>
+      <TicketControl />
+    </div>
+    // </React.Fragment>
   );
 }
 
