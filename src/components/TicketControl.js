@@ -6,7 +6,7 @@ import TicketDetail from "./TicketDetail";
 import EditTicketForm from "./EditTicketForm";
 import { connect } from "react-redux";
 import * as a from './../actions';
-
+import { act } from "react-dom/test-utils";
 
 class TicketControl extends React.Component {
   constructor(props) {
@@ -17,21 +17,12 @@ class TicketControl extends React.Component {
       editing: false
     };
   }
-
+  
   handleClick = () => {
-    if (this.state.selectedTicket != null) {
-      this.setState({
-        formVisibleOnPage: false,
-        selectedTicket: null,
-        editing: false // new code
-      });
-    } else {
-      const { dispatch } = this.props;
-      const action = {
-        type: "TOGGLE_FORM"
-      };
-      dispatch(action);
-    }
+    const {dispatch} = this.props;
+    const action = a.toggleForm();
+    dispatch(action);
+    this.setState({selectedTicket: null})
   };
   handleEditClick = () => {
     console.log("handleEditClick reached!");
