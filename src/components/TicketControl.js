@@ -5,6 +5,7 @@ import PropTypes from "prop-types";
 import TicketDetail from "./TicketDetail";
 import EditTicketForm from "./EditTicketForm";
 import { connect } from "react-redux";
+import * as a from './../actions';
 
 class TicketControl extends React.Component {
   constructor(props) {
