@@ -5,7 +5,7 @@ import PropTypes from "prop-types";
 import TicketDetail from "./TicketDetail";
 import EditTicketForm from "./EditTicketForm";
 import { connect } from "react-redux";
-import * as a from './../actions';
+import * as a from "./../actions";
 import { act } from "react-dom/test-utils";
 
 class TicketControl extends React.Component {
@@ -17,12 +17,12 @@ class TicketControl extends React.Component {
       editing: false
     };
   }
-  
+
   handleClick = () => {
-    const {dispatch} = this.props;
+    const { dispatch } = this.props;
     const action = a.toggleForm();
     dispatch(action);
-    this.setState({selectedTicket: null})
+    this.setState({ selectedTicket: null });
   };
   handleEditClick = () => {
     console.log("handleEditClick reached!");
@@ -43,7 +43,7 @@ class TicketControl extends React.Component {
     const { dispatch } = this.props;
     const action = a.deleteTicket(id);
     dispatch(action);
-    this.setState({selectedTicket: null});
+    this.setState({ selectedTicket: null });
   };
 
   handleChangingSelectedTicket = (id) => {
@@ -57,6 +57,23 @@ class TicketControl extends React.Component {
     dispatch(action);
     const action2 = a.toggleForm();
     dispatch(action2);
+  };
+
+  componentDidMount() {
+    this.waitTimeUpdateTimer = setInterval(() => this.updateTicketElapsedWaitTime(), 60000);
+  }
+
+  componentWillUnmount() {
+    clearInterval(this.waitTimeUpdateTimer);
+  }
+
+  updateTicketElapsedWaitTime = () => {
+    const { dispatch } = this.props;
+    Object.values(this.props.masterTicketList).forEach((ticket) => {
+      const newFormattedWaitTime = ticket.timeOpen.fromNow(true);
+      const action = a.updateTime(ticket.id, newFormattedWaitTime);
+      dispatch(action);
+    });
   };
 
   render() {
