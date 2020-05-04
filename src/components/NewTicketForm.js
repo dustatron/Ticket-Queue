@@ -1,30 +1,36 @@
-import React from "react";
-import { v4 } from "uuid";
-import PropTypes from "prop-types";
-import ReusableForm from "./ReusableForm";
-import Moment from "moment";
+import React from 'react';
+import PropTypes from 'prop-types';
+import ReusableForm from './ReusableForm';
+// import { v4 } from 'uuid';
+// import Moment from 'moment';
+import { useFirestore } from 'react-redux-firebase';
 
 function NewTicketForm(props) {
-  function handleNewTicketFormSubmission(event) {
+  const firestore = useFirestore();
+
+  function addTicketToFirestore(event) {
     event.preventDefault();
-    props.onNewTicketCreation({
+
+    // We will still need our onNewTicketCreation() method to toggle between components - but it will no longer take an argument because it no longer handles creating a ticket.
+    props.onNewTicketCreation();
+
+    // Here's how we will actually add a ticket to Firestore.
+
+    return firestore.collection('tickets').add({
       names: event.target.names.value,
       location: event.target.location.value,
       issue: event.target.issue.value,
-      id: v4(),
-      timeOpen: new Moment(),
-      formattedWaitTime: new Moment().fromNow(true)
+      timeOpen: firestore.FieldValue.serverTimestamp()
     });
   }
+
   return (
     <React.Fragment>
-      <ReusableForm formSubmissionHandler={handleNewTicketFormSubmission} buttonText="Help!" />
-      {/* <form onSubmit={handleNewTicketFormSubmission}>
-        <input type="text" name="names" placeholder="Pair Names" />
-        <input type="text" name="location" placeholder="Location" />
-        <textarea name="issue" placeholder="Describe your issue." />
-        <button type="submit">Help!</button>
-      </form> */}
+      <ReusableForm
+        // Don't forget to change the name of the function here as well.
+        formSubmissionHandler={addTicketToFirestore}
+        buttonText="Help!"
+      />
     </React.Fragment>
   );
 }
