@@ -5,9 +5,9 @@ import PropTypes from 'prop-types';
 import TicketDetail from './TicketDetail';
 import EditTicketForm from './EditTicketForm';
 import { connect } from 'react-redux';
-import { withFirestore } from 'react-redux-firebase';
+
 import * as a from './../actions';
-// import { act } from 'react-dom/test-utils';
+import { withFirestore, isLoaded } from 'react-redux-firebase';
 
 class TicketControl extends React.Component {
   constructor(props) {
@@ -77,43 +77,62 @@ class TicketControl extends React.Component {
     //   dispatch(action);
     // });
   };
-
   render() {
-    let currentlyVisibleState = null;
-    let buttonText = null;
-
-    if (this.state.editing) {
-      currentlyVisibleState = (
-        <EditTicketForm ticket={this.state.selectedTicket} onEditTicket={this.handleEditingTicketInList} />
+    const auth = this.props.firebase.auth();
+    if (!isLoaded(auth)) {
+      return (
+        <React.Fragment>
+          <h1>Loading...</h1>
+        </React.Fragment>
       );
-      buttonText = 'Return to Ticket List';
-    } else if (this.state.selectedTicket != null) {
-      currentlyVisibleState = (
-        <TicketDetail
-          ticket={this.state.selectedTicket}
-          onClickingDelete={this.handleDeletingTicket}
-          onClickingEdit={this.handleEditClick}
-        />
-      );
-      buttonText = 'Return to Ticket List';
-    } else if (this.props.formVisibleOnPage) {
-      currentlyVisibleState = <NewTicketForm onNewTicketCreation={this.handleAddingNewTicketToList} />;
-      buttonText = 'Return to Ticket List';
-    } else {
-      currentlyVisibleState = (
-        <TicketList ticketList={this.props.masterTicketList} onTicketSelection={this.handleChangingSelectedTicket} />
-      );
-      // Because a user will actually be clicking on the ticket in the Ticket component, we will need to pass our new handleChangingSelectedTicket method as a prop.
-      buttonText = 'Add Ticket';
     }
-    return (
-      <React.Fragment>
-        {currentlyVisibleState}
-        <button onClick={this.handleClick}>{buttonText}</button>
-      </React.Fragment>
-    );
+    if (isLoaded(auth) && auth.currentUser === null) {
+      return (
+        <React.Fragment>
+          <h1>You must be signed in to access the queue.</h1>
+        </React.Fragment>
+      );
+    }
+    if (isLoaded(auth) && auth.currentUser != null) {
+      let currentlyVisibleState = null;
+      let buttonText = null;
+
+      if (this.state.editing) {
+        currentlyVisibleState = (
+          <EditTicketForm ticket={this.state.selectedTicket} onEditTicket={this.handleEditingTicketInList} />
+        );
+        buttonText = 'Return to Ticket List';
+      } else if (this.state.selectedTicket != null) {
+        currentlyVisibleState = (
+          <TicketDetail
+            ticket={this.state.selectedTicket}
+            onClickingDelete={this.handleDeletingTicket}
+            onClickingEdit={this.handleEditClick}
+          />
+        );
+        buttonText = 'Return to Ticket List';
+      } else if (this.props.formVisibleOnPage) {
+        currentlyVisibleState = <NewTicketForm onNewTicketCreation={this.handleAddingNewTicketToList} />;
+        buttonText = 'Return to Ticket List';
+      } else {
+        currentlyVisibleState = (
+          <TicketList ticketList={this.props.masterTicketList} onTicketSelection={this.handleChangingSelectedTicket} />
+        );
+        // Because a user will actually be clicking on the ticket in the Ticket component, we will need to pass our new handleChangingSelectedTicket method as a prop.
+        buttonText = 'Add Ticket';
+      }
+      return (
+        <React.Fragment>
+          {currentlyVisibleState}
+          <button onClick={this.handleClick}>{buttonText}</button>
+        </React.Fragment>
+      );
+    }
   }
 }
+
+// render() {
+//
 
 // Add propTypes for ticketList.
 TicketControl.propTypes = {
@@ -127,7 +146,6 @@ const mapStateToProps = (state) => {
 };
 
 // Note: we are now passing mapStateToProps into the connect() function.
-
 TicketControl = connect(mapStateToProps)(TicketControl);
 
 export default withFirestore(TicketControl);
